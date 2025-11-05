@@ -295,7 +295,7 @@ export default function HeaderBar({ isLoggedIn = false, isHomePage = false, curr
                     >
 {t('signIn', language)}
                     </a>
-                    {allowRegistration && (
+                    {!isAdminMode && allowRegistration && (
                       <a
                         href='/register'
                         className='px-4 py-2 rounded font-semibold text-sm transition-colors hover:opacity-90'
@@ -600,7 +600,7 @@ export default function HeaderBar({ isLoggedIn = false, isHomePage = false, curr
               >
                 {t('signIn', language)}
               </a>
-              {allowRegistration && (
+              {!isAdminMode && allowRegistration && (
                 <a
                   href='/register'
                   className='block w-full px-4 py-2 rounded font-semibold text-sm text-center transition-colors'

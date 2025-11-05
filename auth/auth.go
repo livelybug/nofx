@@ -3,6 +3,7 @@ package auth
 import (
 	"crypto/rand"
 	"fmt"
+	"log"
 	"sync"
 	"time"
 
@@ -26,6 +27,9 @@ var tokenBlacklist = struct {
 	sync.RWMutex
 	items map[string]time.Time
 }{items: make(map[string]time.Time)}
+
+// maxBlacklistEntries 黑名单最大容量阈值
+const maxBlacklistEntries = 100_000
 
 // OTPIssuer OTP发行者名称
 const OTPIssuer = "nofxAI"
@@ -68,6 +72,20 @@ func BlacklistToken(token string, exp time.Time) {
 	tokenBlacklist.Lock()
 	defer tokenBlacklist.Unlock()
 	tokenBlacklist.items[token] = exp
+
+	// 如果超过容量阈值，则进行一次过期清理；若仍超限，记录警告日志
+	if len(tokenBlacklist.items) > maxBlacklistEntries {
+		now := time.Now()
+		for t, e := range tokenBlacklist.items {
+			if now.After(e) {
+				delete(tokenBlacklist.items, t)
+			}
+		}
+		if len(tokenBlacklist.items) > maxBlacklistEntries {
+			log.Printf("auth: token blacklist size (%d) exceeds limit (%d) after sweep; consider reducing JWT TTL or using a shared persistent store",
+				len(tokenBlacklist.items), maxBlacklistEntries)
+		}
+	}
 }
 
 // IsTokenBlacklisted 检查token是否在黑名单中（过期自动清理）

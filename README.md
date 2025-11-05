@@ -283,7 +283,6 @@ services:
 
 ### Notes
 - Token lifetime: 24h. On logout, tokens are blacklisted in-memory until expiry. For multi-instance deployments, use a shared store (e.g., Redis) to sync the blacklist.
-- Logs and errors are English-only for consistency.
 
 ---
 
