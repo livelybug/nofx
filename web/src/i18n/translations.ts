@@ -198,7 +198,7 @@ export const translations = {
     hyperliquidWalletAddressDesc:
       'Wallet address corresponding to the private key',
     asterUserDesc:
-      'Main wallet address - The EVM wallet address you use to log in to Aster',
+      'Main wallet address - The EVM wallet address you use to log in to Aster (Note: Only EVM wallets are supported, Solana wallets are not supported)',
     asterSignerDesc:
       'API wallet address - Generate from https://www.asterdex.com/en/api-wallet',
     asterPrivateKeyDesc:
@@ -483,15 +483,19 @@ export const translations = {
     candidateCoins: 'Candidate Coins',
     candidateCoinsZeroWarning: 'Candidate Coins Count is 0',
     possibleReasons: 'Possible Reasons:',
-    coinPoolApiNotConfigured: 'Coin pool API not configured or inaccessible (check signal source settings)',
+    coinPoolApiNotConfigured:
+      'Coin pool API not configured or inaccessible (check signal source settings)',
     apiConnectionTimeout: 'API connection timeout or returned empty data',
-    noCustomCoinsAndApiFailed: 'No custom coins configured and API fetch failed',
+    noCustomCoinsAndApiFailed:
+      'No custom coins configured and API fetch failed',
     solutions: 'Solutions:',
     setCustomCoinsInConfig: 'Set custom coin list in trader configuration',
     orConfigureCorrectApiUrl: 'Or configure correct coin pool API address',
-    orDisableCoinPoolOptions: 'Or disable "Use Coin Pool" and "Use OI Top" options',
+    orDisableCoinPoolOptions:
+      'Or disable "Use Coin Pool" and "Use OI Top" options',
     signalSourceNotConfigured: 'Signal Source Not Configured',
-    signalSourceWarningMessage: 'You have traders that enabled "Use Coin Pool" or "Use OI Top", but signal source API address is not configured yet. This will cause candidate coins count to be 0, and traders cannot work properly.',
+    signalSourceWarningMessage:
+      'You have traders that enabled "Use Coin Pool" or "Use OI Top", but signal source API address is not configured yet. This will cause candidate coins count to be 0, and traders cannot work properly.',
     configureSignalSourceNow: 'Configure Signal Source Now',
   },
   zh: {
@@ -688,7 +692,7 @@ export const translations = {
     hyperliquidPrivateKeyDesc: 'Hyperliquid 使用私钥进行交易认证',
     hyperliquidWalletAddressDesc: '与私钥对应的钱包地址',
     asterUserDesc:
-      '主钱包地址 - 您用于登录 Aster 的 EVM 钱包地址',
+      '主钱包地址 - 您用于登录 Aster 的 EVM 钱包地址（注意：仅支持 EVM 钱包，不支持 Solana 钱包）',
     asterSignerDesc:
       'API 钱包地址 - 从 https://www.asterdex.com/zh-CN/api-wallet 生成',
     asterPrivateKeyDesc:
@@ -948,7 +952,8 @@ export const translations = {
     orConfigureCorrectApiUrl: '或者配置正确的币种池API地址',
     orDisableCoinPoolOptions: '或者禁用"使用币种池"和"使用OI Top"选项',
     signalSourceNotConfigured: '信号源未配置',
-    signalSourceWarningMessage: '您有交易员启用了"使用币种池"或"使用OI Top"，但尚未配置信号源API地址。这将导致候选币种数量为0，交易员无法正常工作。',
+    signalSourceWarningMessage:
+      '您有交易员启用了"使用币种池"或"使用OI Top"，但尚未配置信号源API地址。这将导致候选币种数量为0，交易员无法正常工作。',
     configureSignalSourceNow: '立即配置信号源',
   },
 }
