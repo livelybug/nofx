@@ -5,6 +5,7 @@ import { EquityChart } from './components/EquityChart'
 import { AITradersPage } from './components/AITradersPage'
 import { LoginPage } from './components/LoginPage'
 import { RegisterPage } from './components/RegisterPage'
+import { ResetPasswordPage } from './components/ResetPasswordPage'
 import { CompetitionPage } from './components/CompetitionPage'
 import { LandingPage } from './pages/LandingPage'
 import HeaderBar from './components/landing/HeaderBar'
@@ -233,6 +234,9 @@ function App() {
       return <LoginPage />;
     }    
     return <RegisterPage />
+  }
+  if (route === '/reset-password') {
+    return <ResetPasswordPage />
   }
   if (route === '/competition') {
     return (
