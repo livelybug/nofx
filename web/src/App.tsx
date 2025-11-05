@@ -211,6 +211,10 @@ function App() {
     return <LoginPage />;
   }
   if (route === '/register') {
+    if (systemConfig?.admin_mode || systemConfig?.allow_registration === false) {
+      window.history.pushState({}, '', '/login');
+      return <LoginPage />;
+    }
     return <RegisterPage />;
   }
   if (route === '/competition') {
@@ -225,6 +229,7 @@ function App() {
           user={user}
           onLogout={logout}
           isAdminMode={systemConfig?.admin_mode}
+          allowRegistration={systemConfig?.allow_registration !== false}
           onPageChange={(page) => {
             console.log('Competition page onPageChange called with:', page);
             console.log('Current route:', route, 'Current page:', currentPage);
@@ -258,10 +263,14 @@ function App() {
   
   // Show landing page for root route
   if (route === '/' || route === '') {
-    return <LandingPage />;
+    return <LandingPage allowRegistration={systemConfig?.allow_registration !== false} isAdminMode={systemConfig?.admin_mode} />;
   }
   
-  // Show main app for authenticated users on other routes
+  // In admin mode, require authentication for any protected routes
+  if (systemConfig?.admin_mode && (!user || !token)) {
+    return <LoginPage />;
+  }
+  // Show main app for authenticated users on other routes (non-admin mode)
   if (!systemConfig?.admin_mode && (!user || !token)) {
     // Default to landing page when not authenticated and no specific route
     return <LandingPage />;
@@ -277,6 +286,7 @@ function App() {
         user={user}
         onLogout={logout}
         isAdminMode={systemConfig?.admin_mode}
+        allowRegistration={systemConfig?.allow_registration !== false}
         onPageChange={(page) => {
           console.log('Main app onPageChange called with:', page);
           

@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { t } from '../i18n/translations';
 import HeaderBar from './landing/HeaderBar';
+import { getSystemConfig } from '../lib/config';
 
 export function LoginPage() {
   const { language } = useLanguage();
-  const { login, verifyOTP } = useAuth();
+  const { login, loginAdmin, verifyOTP } = useAuth();
   const [step, setStep] = useState<'login' | 'otp'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,6 +15,32 @@ export function LoginPage() {
   const [userID, setUserID] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminMode, setAdminMode] = useState<boolean | null>(null);
+  const [allowRegistration, setAllowRegistration] = useState(true);
+
+  useEffect(() => {
+    getSystemConfig()
+      .then((cfg) => {
+        setAdminMode(!!cfg.admin_mode);
+        setAllowRegistration(cfg.allow_registration !== false);
+      })
+      .catch(() => {
+        setAdminMode(false);
+        setAllowRegistration(true);
+      });
+  }, []);
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    const result = await loginAdmin(adminPassword);
+    if (!result.success) {
+      setError(result.message || t('loginFailed', language));
+    }
+    setLoading(false);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,7 +111,39 @@ export function LoginPage() {
 
         {/* Login Form */}
         <div className="rounded-lg p-6" style={{ background: 'var(--panel-bg)', border: '1px solid var(--panel-border)' }}>
-          {step === 'login' ? (
+          {adminMode ? (
+            <form onSubmit={handleAdminLogin} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--brand-light-gray)' }}>
+                  管理员密码
+                </label>
+                <input
+                  type="password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  className="w-full px-3 py-2 rounded"
+                  style={{ background: 'var(--brand-black)', border: '1px solid var(--panel-border)', color: 'var(--brand-light-gray)' }}
+                  placeholder="请输入管理员密码"
+                  required
+                />
+              </div>
+
+              {error && (
+                <div className="text-sm px-3 py-2 rounded" style={{ background: 'var(--binance-red-bg)', color: 'var(--binance-red)' }}>
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full px-4 py-2 rounded text-sm font-semibold transition-all hover:scale-105 disabled:opacity-50"
+                style={{ background: 'var(--brand-yellow)', color: 'var(--brand-black)' }}
+              >
+                {loading ? t('loading', language) : '登录'}
+              </button>
+            </form>
+          ) : step === 'login' ? (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--brand-light-gray)' }}>
@@ -186,22 +245,25 @@ export function LoginPage() {
         </div>
 
         {/* Register Link */}
-        <div className="text-center mt-6">
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-            还没有账户？{' '}
-            <button
-              onClick={() => {
-                window.history.pushState({}, '', '/register');
-                window.dispatchEvent(new PopStateEvent('popstate'));
-              }}
-              className="font-semibold hover:underline transition-colors"
-              style={{ color: 'var(--brand-yellow)' }}
-            >
-              立即注册
-            </button>
-          </p>
+        {!adminMode && allowRegistration && (
+          <div className="text-center mt-6">
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              还没有账户？{' '}
+              <button
+                onClick={() => {
+                  window.history.pushState({}, '', '/register');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+                className="font-semibold hover:underline transition-colors"
+                style={{ color: 'var(--brand-yellow)' }}
+              >
+                立即注册
+              </button>
+            </p>
+          </div>
+        )}
+
         </div>
-      </div>
       </div>
     </div>
   );

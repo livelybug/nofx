@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"github.com/joho/godotenv"
 	"nofx/api"
 	"nofx/auth"
 	"nofx/config"
@@ -37,6 +38,7 @@ type ConfigFile struct {
 	StopTradingMinutes int            `json:"stop_trading_minutes"`
 	Leverage           LeverageConfig `json:"leverage"`
 	JWTSecret          string         `json:"jwt_secret"`
+	AllowRegistration  bool           `json:"allow_registration"`
 	DataKLineTime      string         `json:"data_k_line_time"`
 }
 
@@ -73,6 +75,7 @@ func syncConfigToDatabase(database *config.Database) error {
 		"max_daily_loss":        fmt.Sprintf("%.1f", configFile.MaxDailyLoss),
 		"max_drawdown":          fmt.Sprintf("%.1f", configFile.MaxDrawdown),
 		"stop_trading_minutes":  strconv.Itoa(configFile.StopTradingMinutes),
+		"allow_registration":    fmt.Sprintf("%t", configFile.AllowRegistration),
 	}
 
 	// 同步default_coins（转换为JSON字符串存储）
@@ -150,6 +153,10 @@ func main() {
 	fmt.Println("╚════════════════════════════════════════════════════════════╝")
 	fmt.Println()
 
+	// Load environment variables from .env file if present (for local/dev runs)
+	// In Docker Compose, variables are injected by the runtime and this is harmless.
+	_ = godotenv.Load()
+
 	// 初始化数据库配置
 	dbPath := "config.db"
 	if len(os.Args) > 1 {
@@ -184,21 +191,23 @@ func main() {
 
 	// 设置JWT密钥
 	jwtSecret, _ := database.GetSystemConfig("jwt_secret")
-	if jwtSecret == "" {
+	if jwtSecret == "" { // Todo: set JWT in env file
 		jwtSecret = "your-jwt-secret-key-change-in-production-make-it-long-and-random"
 		log.Printf("⚠️  使用默认JWT密钥，建议在生产环境中配置")
 	}
 	auth.SetJWTSecret(jwtSecret)
 
-	// 在管理员模式下，确保admin用户存在
+	// 管理员模式下需要管理员密码，缺失则退出
 	if adminMode {
-		err := database.EnsureAdminUser()
-		if err != nil {
-			log.Printf("⚠️  创建admin用户失败: %v", err)
-		} else {
-			log.Printf("✓ 管理员模式已启用，无需登录")
+		adminPassword := os.Getenv("NOFX_ADMIN_PASSWORD")
+		if adminPassword == "" {
+			log.Fatalf("Admin mode is enabled but NOFX_ADMIN_PASSWORD is missing. Set NOFX_ADMIN_PASSWORD and restart.")
+		}
+		if err := auth.SetAdminPasswordFromPlain(adminPassword); err != nil {
+			log.Fatalf("Failed to set admin password: %v", err)
 		}
 		auth.SetAdminMode(true)
+		log.Printf("✓ Admin mode enabled. All API endpoints require admin authentication.")
 	}
 
 	log.Printf("✓ 配置数据库初始化成功")

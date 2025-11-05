@@ -90,6 +90,22 @@ After deployment:
 3. **Create Traders** → Combine AI models with exchanges
 4. **Start Trading** → Monitor performance in dashboard
 
+### 🔐 Optional: Enable Admin Mode (Single-User)
+
+For single-tenant/self-hosted usage, you can enable strict admin-only access:
+
+1) In `config.json` set:
+```jsonc
+{
+	"admin_mode": true,
+	"allow_registration": false
+}
+```
+2) Set environment variables (Docker compose already wired):
+- `NOFX_ADMIN_PASSWORD` — admin password (plaintext; hashed on startup)
+
+3) Login at `/login` using the admin password. All non-essential endpoints are blocked to unauthenticated users while admin mode is enabled.
+
 ---
 
 ## ⚠️ Important Notes
